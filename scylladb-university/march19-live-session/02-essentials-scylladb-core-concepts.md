@@ -135,7 +135,7 @@ Q:  How to list all tables? \
 A: Quick lookup:
 * If you want to see the tables of a specific keyspace, run the following from the CQL Shell: \
 `use keyspace_name; DESCRIBE tables;` 
-* To list all the tables in all keyspaces, run: \
+* To list all the tables in all keyspaces, run:
 `DESCRIBE tables;` \
 Without choosing a keyspace first Note that this will also list system tables.
 * You can also use `DESC keyspace your_keyspace_name` to get the entire schema
