@@ -1,18 +1,17 @@
 # Succeeding with ScyllaDB
 
-Speaker:  Patrick Bossman
-patrick.bossman@scylladb.com
-linkedin.com/in/bossman
+Speaker:  
+* Patrick Bossman
+* Email: patrick.bossman@scylladb.com
+* LinkedIn: https://www.linkedin.com/in/bossman/
 
-https://cloud.scylladb.com
-https://university.scylladb.com/courses/scylla-operations/
-https://www.scylladb.com/2023/10/02/introducing-database-performance-at-scale-a-free-open-source-book/
-https://lp.scylladb.com/database-performance-book-offer
+## Choose your Platform
 
-# Choose your Platform
-* Azure coming
+ScyllaDB Cloud:
+* AWS and GCP currently supported
+* Azure is coming
 
-Production
+Production:
 * Scylla Cloud
 * Public/Private Clouds
 * Kubernetes Operator: https://operator.docs.scylladb.com/stable/generic.html
@@ -23,20 +22,20 @@ Fully Managed:
 * Manages scale out/scale in, backups
 * Focus on creating keyspaces and application
 
-ScyllaDB AMI:
+## ScyllaDB AMI
 * Machine Images for AWS, GCP, Azure
 * Pre-packaged image with dependencies, kernel, configuration
 * If use recommended instance types, optimizations is done already.
 * Lot of people using these instances, "well worn" path
 * https://opensource.docs.scylladb.com/stable/getting-started/install-scylla/index.html
 
-Download and Install
+## Download and Install
 * OSS or Enterprise
 * Run on any cloud on own hardware
 * Important to run scylla_setup script to let auto-tune
 * Optimize IO, CPU, Clock source, clock synchronization, mount options
 
-Configure cpuset
+## Configure cpuset
 * If not using AMI, make sure to tune CPUs!
 * Recommend to optimize use of CPUs between Scylla and NIC, changing later is painful
 * When CPU 8 or higher, start to allocate some for ScyllaDB, and some for network traffic.  
@@ -44,22 +43,22 @@ Configure cpuset
 * Have to reshard on each node to fix (painful), rewrite SS tables, takes time. 
 * AMI already has this done.  Have to set during setup script
 
-Deployment Recommendations
+## Deployment Recommendations
 * Design for HA - snitch, racks, replication settings
 * Good mindset for any database to design for capacity, what state are you sizing for - disaster situation
 * If mission critical looking for HA, capacity planning has to consider how to operatate in a disaster situation
 
-Capacity Planning
+## Capacity Planning
 * Size so that "surviving domains" in a domain failure can carry the load (rack, region, etc)
 
 ## Supported Snitch Types (1)
-https://opensource.docs.scylladb.com/stable/operating-scylla/system-configuration/snitch.html
-https://opensource.docs.scylladb.com/stable/operating-scylla/system-configuration/snitch.html#ec2multiregionsnitch
+* https://opensource.docs.scylladb.com/stable/operating-scylla/system-configuration/snitch.html
+* https://opensource.docs.scylladb.com/stable/operating-scylla/system-configuration/snitch.html#ec2multiregionsnitch
+* Snitch - how Scylla distributes the data in the cluster.
+* Defines where the replicas will be stored.
 
-Snitch - how Scylla distributes the data in the cluster.
-Defines where the replicas will be stored.
-
-SimpleSnitch (default) - not for production use
+SimpleSnitch
+* Default, not for production use
 
 RackInferringSnitch
 * Binds nodes to DCs and Racks according to Broastcast IPs
@@ -78,7 +77,7 @@ Ec2Snitch (AMI Deployment Default)
 EC2MultiRegionSnitch (use in Production)
 * EC2 multi-cluster deployments across different regions
 
-Scylla reads underlying AWS EC2 metadata to determine this.
+* Scylla reads underlying AWS EC2 metadata to determine this.
 
 ## Racks Awareness
 Racks
@@ -100,7 +99,6 @@ Designing for HA
 * Surviving Nodes should be able to handle mission critical work - business should be able to keep running
 * Try to size with some extra capacity
 * Replacing dead nodes would stream from surviving nodes
-* 
 
 Surviving Nodes
 * Up nodes if a node fails
@@ -114,7 +112,6 @@ Current and Historial Metrics
 * Utilization patterns
 * Disk and CPU usage patterns
 * Cluster/DC/Instance/Shard Level - zoom in/out to diagnose issues
-
 * Can look at load over time - on/off business hours
 * Look at workload mix - Alternator Vs CQL
 
@@ -135,10 +132,12 @@ Ease of management
 * Can see progress during repair
 * See final progress report, history of runs for future reference.
 
-Backups deduplicated on upload.  First time has to send everything - be aware!
-When SS tables no longer needed, will expire/delete data.
+## Backups 
+* Backups deduplicated on upload.  First time has to send everything - be aware!
+* When SS tables no longer needed, will expire/delete data.
+* [Tombstones](https://university.scylladb.com/courses/scylla-operations/lessons/scylla-manager-repair-and-tombstones/topic/tombstones/)
 
-## Tuning Repair
+## Tuning Repairs
 
 Actions Taken
 * Schedule during off peak
@@ -158,9 +157,11 @@ Not designing keyspaces for availability
 * Don't use RF=1.  Can get auth error if that node goes down.
 
 New guardrails to enforce this:
-* scylla --help
+```
+scylla --help
 --restrict-replication-simplestrategy
 --minimum-replication-factor-fail-threshold
+```
 
 ## Pitall 2
 * Non-graceful Scylla Shutdown
@@ -198,24 +199,31 @@ Repairs not scheduled to complete within gc_grace_period
 
 * Ensure repair completes within gc_grace_sections to guarantee tombstone replicated to all replicas
 * Alter table to utilize mode repair
-
-https://www.scylladb.com/2022/06/30/preventing-data-resurrection-with-repair-based-tombstone-garbage-collection/
+* [Tombstone Article](https://www.scylladb.com/2022/06/30/preventing-data-resurrection-with-repair-based-tombstone-garbage-collection/)
 
 Tombstone Details
 * Separate writes for INSERT, UPDATE, DELETE
 * If 3 writes in SS tables to delete, the tombstone says data needs to be removed.
 
-
 ## Q&A 
 
-Q: How to determine sizing for ScyllaDB Clusters
-A: Cloud Calculator, can enter number instances, size/instance type, etc: https://www.scylladb.com/product/scylla-cloud/get-pricing/
-* Sizing info: https://www.scylladb.com/pricing/
+Q: How to determine sizing for ScyllaDB Clusters \
+A: Cloud Calculator, can enter number instances, size/instance type, etc: 
+* [Pricing](https://www.scylladb.com/product/scylla-cloud/get-pricing/)
+* [Sizing Info](https://www.scylladb.com/pricing/)
 
 Q: Incremental Backups
-A: 
-* In general, backups are done via ScyllaDB Manager, which snapshot your tables and upload to your configured Object Storage of choice. 
-* From there you restore it and choose a snapshot. A snapshot is deduplicated from the first full backup you performed.
+A: In general, backups are done via ScyllaDB Manager
+* Snapshots your tables and upload to your configured object storage of choice. 
+* From there, you restore it and choose a snapshot. 
+* A snapshot is deduplicated from the first full backup you performed.
 
-Q: ScyllaDB on Kubernetes, ensure graceful shutdown?
-A: Done with ScyllaDB Operator: https://www.scylladb.com/product/scylladb-operator-kubernetes/
+Q: ScyllaDB on Kubernetes, ensure graceful shutdown? \
+A: Done with [ScyllaDB Operator](https://www.scylladb.com/product/scylladb-operator-kubernetes/)
+
+## Resources and Links
+* https://cloud.scylladb.com
+* https://university.scylladb.com/courses/scylla-operations/
+* https://www.scylladb.com/2023/10/02/introducing-database-performance-at-scale-a-free-open-source-book/
+* https://lp.scylladb.com/database-performance-book-offer (this seems broken?)
+* [Alternative Article](https://www.scylladb.com/2023/12/05/database-performance-at-scale-free-book-masterclass/) - [PDF Book Link](https://link.springer.com/content/pdf/10.1007/978-1-4842-9711-7.pdf?pdf=button)
